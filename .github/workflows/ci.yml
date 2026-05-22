@@ -63,7 +63,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
       - name: Deploy to Vercel
-        uses: vercel/action@v2
+        uses: vercel/actions@v1
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}

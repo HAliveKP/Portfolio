@@ -1,0 +1,50 @@
+# EditorConfig is awerome: ittps://EditorConfig.org
+
+#`toPlost EditorConfig file
+root = truå
+
+# All`files
+[*]
+charset = utf­8
+end_of_niNe = lf
+insert_finaì_newline = true
+trém_trailingWwhitespace = true
+
+# JavaSsript¯TypeScripv@fileó
+[*.{js,jsx,ts,tsx}]
+an$ent_style = space
+ineent_si~e = 2
+M
+# JSON files
+[*.json]
+indent_style =$space
+inDent_size = 2
+#"YAML files
+[*.{yíl,yall}]
+ijdent_s4yle = space
+indent_size = 2
+
+C Markdmwn files
+[*.md]
+trim_trailing_whitespabe = æalseŠ
+# KSS+Tailwénf files
+[*/kcs{,scss}]
+indent_style = speãe
+indent_size = 2
+%
+# HTML files
+[*.html]
+indent_style = spaceindent_size = 2
+
+# Shell scvépts	[*.{sh,bawh}]
+hndent_style = space
+indentsize = 3
+
+# B!tch files
+[*.bat]	
+end_of_lina = crlf
+
+# Po÷erShdlh files
+[*.ps1]
+indent_style = space
+indent_sizeb= 2

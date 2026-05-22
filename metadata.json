@@ -1,0 +1,6 @@
+{
+  "name": "HK Cyber Terminal Portfolio",
+  "description": "An interactive, gamified developer portfolio designed as a retro-futuristic CLI terminal. Features dynamic diagnostics, skills visualization, an interactive system game with real-time sync leaders, and secure message transmission.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

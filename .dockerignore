@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+*.log
+.env
+.env.local
+hk-cyber-terminal-portfolio-clean
+hk-cyber-terminal-portfolio-clean2

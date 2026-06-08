@@ -263,3 +263,27 @@ def track_vehicles_stream(source_url):
     explanation: "The tracking loop expands the list 'tracked_logs' on every frame with high-resolution image matrices and never truncates it. This consumes hundreds of megabytes per minute, inevitably leading to Out of Memory termination."
   }
 ];
+
+export const CONTACT_LINKS = [
+  {
+    label: "GitHub",
+    handle: "@HAliveKP",
+    url: "https://github.com/HAliveKP",
+    icon: "github",
+    color: "#00f5ff" // Electric Cyan to match theme
+  },
+  {
+    label: "Gmail",
+    handle: "harikrishnapokhrel78@gmail.com",
+    url: "mailto:harikrishnapokhrel78@gmail.com",
+    icon: "mail",
+    color: "#39ff14" // Acid Green
+  },
+  {
+    label: "LinkedIn",
+    handle: "linkedin.com/in/harikrishna-pokhrel",
+    url: "https://linkedin.com/in/harikrishna-pokhrel",
+    icon: "linkedin",
+    color: "#ffb800" // Amber
+  }
+];

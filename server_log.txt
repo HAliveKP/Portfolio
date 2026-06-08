@@ -1,6 +1,0 @@
-
-> hk-cyber-terminal-portfolio@0.0.0 dev
-> tsx server.ts
-
-◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-[SYSTEM STARTED] HK Cyber Terminal OS running on http://0.0.0.0:3000

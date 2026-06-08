@@ -25,10 +25,13 @@ import {
   ChevronUp,
   ChevronDown,
   Menu,
-  X
+  X,
+  Copy,
+  ExternalLink as LinkIcon
 } from "lucide-react";
-import { PROJECTS_REGISTRY, PUZZLES_DIARY } from "../data/portfolioData";
+import { PROJECTS_REGISTRY, PUZZLES_DIARY, CONTACT_LINKS } from "../data/portfolioData";
 import { TerminalLine, LeaderboardEntry, ProjectDef, PuzzleDef } from "../types";
+import TerminalShooter from "./TerminalShooter";
 
 const VIRTUAL_FS: Record<string, { type: "dir", contents: string[] }> = {
   "/": {
@@ -79,9 +82,11 @@ export default function TerminalDashboard() {
   const [systemTime, setSystemTime] = useState("");
   const [uptimeDays, setUptimeDays] = useState(0);
   const [uptimeParts, setUptimeParts] = useState({ h: 0, m: 0, s: 0 });
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string | null>("PROFILE");
   const [isLoadingSection, setIsLoadingSection] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const [contactState, setContactState] = useState<"idle" | "name" | "email" | "msg" | "sending">("idle");
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
@@ -101,6 +106,8 @@ export default function TerminalDashboard() {
 
   const [mountedProject, setMountedProject] = useState<string>(PROJECTS_REGISTRY[0].slug);
   const [simulatedExtractPct, setSimulatedExtractPct] = useState<number | null>(null);
+  const [inspectingProject, setInspectingProject] = useState<ProjectDef | null>(null);
+  const [skillFilter, setSkillFilter] = useState<string>("ALL");
 
   const [diagnosticsLogs, setDiagnosticsLogs] = useState<string[]>([
     "SYS_BOOT: RESOLVED_COMPILER_READY",
@@ -175,8 +182,53 @@ export default function TerminalDashboard() {
   }, []);
 
   useEffect(() => {
-    terminalBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll to bottom if we are not navigating to a specific section
+    if (!isLoadingSection) {
+      terminalBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [history, isLoadingSection]);
+
+  useEffect(() => {
+    const observerOptions = {
+      root: document.querySelector('.terminal-content-area'),
+      threshold: 0.5,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const navItem = NAV_ITEMS.find(item => item.label.toLowerCase() === id);
+          if (navItem) setActiveSection(navItem.label);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    Object.values(sectionRefs.current).forEach(ref => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
   }, [history]);
+
+  const navigateTo = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      // If section doesn't exist in history, trigger the command
+      const navItem = NAV_ITEMS.find(item => item.label.toLowerCase() === sectionId);
+      if (navItem) {
+        handleCommandSubmit(navItem.cmd);
+        // Wait for render then scroll
+        setTimeout(() => {
+          document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    }
+    setIsMobileMenuOpen(false);
+  };
 
   const playClickSound = (f = 400, d = 0.02) => {
     if (!soundEnabled) return;
@@ -389,6 +441,10 @@ export default function TerminalDashboard() {
         break;
 
       case "/play":
+        if (args.length > 0 && args[0].toLowerCase() === "game") {
+          appendLine("", "system", "game");
+          break;
+        }
         let diff: "Normal" | "Extra Hard" = "Normal";
         if (args.length > 0 && args[0].toLowerCase().includes("hard")) {
           diff = "Extra Hard";
@@ -399,6 +455,7 @@ export default function TerminalDashboard() {
         const candidates = PUZZLES_DIARY.filter(p => p.difficulty === diff);
         const randomChallenge = candidates[Math.floor(Math.random() * candidates.length)];
         setActiveQuizId(randomChallenge.id);
+        appendLine("Type '/play game' to launch BUG_BLASTER or solve this puzzle:", "success");
         appendLine("", "system", "play", { puzzle: randomChallenge });
         break;
 
@@ -408,9 +465,7 @@ export default function TerminalDashboard() {
         break;
 
       case "/contact":
-        setContactForm({ name: "", email: "", message: "" });
-        setContactState("name");
-        appendLine("[TRANSFORM OVERLAY MODE: INITIALIZED] Please type your Name:", "success");
+        appendLine("", "system", "contact");
         break;
 
       case "/clear":
@@ -435,7 +490,8 @@ export default function TerminalDashboard() {
             break;
           }
         }
-        appendLine(`COMMAND FAULT: '${command}' not certified. Type '/help' for options.`, "error");
+        appendLine(`ERROR 404 — MODULE '${command}' NOT FOUND`, "error");
+        appendLine(">> SYSTEM_RECOVERY: Type '/help' to list valid operational modules.", "accent");
     }
   };
 
@@ -622,7 +678,7 @@ export default function TerminalDashboard() {
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.label}
-                onClick={() => handleQuickCommand(item.cmd)}
+                onClick={() => navigateTo(item.label.toLowerCase())}
                 className={`w-full flex items-center px-6 py-3 group relative transition-all duration-300 ${activeSection === item.label ? 'bg-cyber-cyan/10 border-l-2 border-cyber-cyan' : 'border-l-2 border-transparent hover:bg-white/5'}`}
               >
                 <span className="text-cyber-cyan mr-3 font-terminal">{">"}</span>
@@ -662,7 +718,7 @@ export default function TerminalDashboard() {
         )}
 
         {/* Main Content Area */}
-        <main className="flex-grow flex flex-col bg-cyber-bg-dark/40 overflow-hidden relative">
+        <main className="flex-grow flex flex-col bg-cyber-bg-dark/40 overflow-hidden relative" role="main">
           <section className="flex-grow flex flex-col overflow-hidden m-2 md:m-6 data-panel border-cyber-cyan/20">
             <div className="h-8 bg-cyber-cyan/5 border-b border-cyber-cyan/10 flex items-center px-4 justify-between shrink-0">
               <div className="flex space-x-1.5">
@@ -675,7 +731,7 @@ export default function TerminalDashboard() {
               </div>
             </div>
 
-            <div className="flex-grow overflow-y-auto p-3 md:p-6 space-y-4 font-terminal scrollbar-thin">
+            <div className="terminal-content-area flex-grow overflow-y-auto p-3 md:p-6 space-y-4 font-terminal scrollbar-thin">
               {isLoadingSection && (
                 <div className="text-cyber-cyan font-terminal text-xs md:text-sm animate-pulse">
                   {">"} LOADING [{activeSection}]...
@@ -685,7 +741,16 @@ export default function TerminalDashboard() {
               {!isLoadingSection && history.map((line) => (
                 <div key={line.id} className={`animate-in fade-in duration-500 ${line.type === 'chat_user' ? 'flex justify-end' : ''}`}>
                   {line.componentName ? (
-                    <div className="my-2 md:my-4 border-l border-cyber-cyan/20 pl-3 md:pl-4 py-1 md:py-2 w-full">
+                    <div
+                      id={line.componentName === "me" ? "profile" : line.componentName === "skills" ? "skills" : line.componentName === "projects" ? "projects" : line.componentName === "game" ? "game" : line.componentName === "contact" ? "contact" : undefined}
+                      ref={el => {
+                        if (line.componentName) {
+                          const key = line.componentName === "me" ? "profile" : line.componentName;
+                          sectionRefs.current[key] = el;
+                        }
+                      }}
+                      className="my-2 md:my-4 border-l border-cyber-cyan/20 pl-3 md:pl-4 py-1 md:py-2 w-full"
+                    >
                       {line.componentName === "me" && (
                         <div className="data-panel p-4 md:p-6 border-cyber-cyan/30">
                           <h2 className="mb-4 md:mb-6 panel-title text-cyber-cyan text-sm md:text-base">PROFILE_DATA // [HK]</h2>
@@ -716,27 +781,41 @@ export default function TerminalDashboard() {
 
                       {line.componentName === "skills" && (
                         <div className="data-panel p-4 md:p-6 border-cyber-cyan/30">
-                          <h2 className="mb-4 md:mb-6 panel-title text-cyber-cyan text-sm md:text-base">SKILLS_MATRIX</h2>
+                          <div className="flex justify-between items-center mb-6">
+                            <h2 className="panel-title text-cyber-cyan text-sm md:text-base">SKILLS_MATRIX</h2>
+                            <div className="flex space-x-2">
+                                {["ALL", "EXPERT", "PROFICIENT"].map(f => (
+                                    <button
+                                        key={f}
+                                        onClick={() => setSkillFilter(f)}
+                                        className={`text-[9px] font-display px-2 py-1 border transition-all ${skillFilter === f ? 'bg-cyber-cyan/20 border-cyber-cyan text-cyber-cyan' : 'border-white/10 text-white/40 hover:text-white/60'}`}
+                                    >
+                                        {f}
+                                    </button>
+                                ))}
+                            </div>
+                          </div>
                           <div className="grid xs:grid-cols-1 sm:grid-cols-2 gap-x-8 md:gap-x-12 gap-y-4 md:gap-y-6">
                             {[
-                              { label: "PYTHON_SYS", val: 92, type: "expert" },
-                              { label: "NEURAL_NETS", val: 84, type: "expert" },
-                              { label: "YOLO_VISION", val: 88, type: "expert" },
-                              { label: "REACT_OS", val: 82, type: "proficient" },
-                              { label: "SQL_REL", val: 85, type: "proficient" },
-                              { label: "FLASK_ORCH", val: 80, type: "proficient" }
-                            ].map(s => (
-                              <div key={s.label}>
+                              { label: "PYTHON_SYS", val: 92, type: "EXPERT" },
+                              { label: "NEURAL_NETS", val: 84, type: "EXPERT" },
+                              { label: "YOLO_VISION", val: 88, type: "EXPERT" },
+                              { label: "REACT_OS", val: 82, type: "PROFICIENT" },
+                              { label: "SQL_REL", val: 85, type: "PROFICIENT" },
+                              { label: "FLASK_ORCH", val: 80, type: "PROFICIENT" }
+                            ].filter(s => skillFilter === "ALL" || s.type === skillFilter).map(s => (
+                              <div key={s.label} className="animate-in fade-in slide-in-from-left-2 duration-300">
                                 <div className="flex justify-between text-[9px] md:text-[10px] mb-1 uppercase font-terminal">
                                   <span className="text-white/60 tracking-widest">{s.label}</span>
-                                  <span className={s.type === 'expert' ? 'text-cyber-cyan' : 'text-cyber-green'}>[{s.val}%]</span>
+                                  <span className={s.type === 'EXPERT' ? 'text-cyber-cyan' : 'text-cyber-green'}>[{s.val}%]</span>
                                 </div>
                                 <div className="h-3 md:h-4 bg-black/40 border border-white/10 flex items-center px-1">
                                   <div className={`h-1.5 md:h-2 flex space-x-[2px] w-full`}>
                                     {Array.from({ length: 15 }).map((_, i) => (
                                       <div
                                         key={i}
-                                        className={`h-full flex-grow ${i < (s.val / 6.6) ? (s.type === 'expert' ? 'bg-cyber-cyan' : 'bg-cyber-green') : 'bg-white/5'}`}
+                                        className={`h-full flex-grow transition-all duration-1000 ${i < (s.val / 6.6) ? (s.type === 'EXPERT' ? 'bg-cyber-cyan shadow-[0_0_5px_rgba(0,245,255,0.5)]' : 'bg-cyber-green shadow-[0_0_5px_rgba(57,255,20,0.5)]') : 'bg-white/5'}`}
+                                        style={{ transitionDelay: `${i * 50}ms` }}
                                       />
                                     ))}
                                   </div>
@@ -750,27 +829,66 @@ export default function TerminalDashboard() {
                       {line.componentName === "projects" && (
                         <div className="grid xs:grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                           {PROJECTS_REGISTRY.map(p => (
-                            <div key={p.id} className="data-panel p-3 md:p-4 project-card status-active">
+                            <div key={p.id} className="data-panel p-3 md:p-4 project-card status-active group">
                               <div className="flex justify-between items-start mb-2">
                                 <h3 className="font-display text-[11px] md:text-sm text-cyber-cyan truncate">{p.name}</h3>
-                                <div className="status-badge bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/20 scale-75 origin-right">
-                                  <div className="status-dot bg-cyber-cyan" />Active
+                                <div className={`status-badge border scale-75 origin-right ${
+                                    p.stats.includes("Completed") ? 'bg-cyber-green/10 text-cyber-green border-cyber-green/20' :
+                                    p.stats.includes("Deployed") ? 'bg-cyber-cyan/10 text-cyber-cyan border-cyber-cyan/20' :
+                                    'bg-cyber-amber/10 text-cyber-amber border-cyber-amber/20'
+                                }`}>
+                                  <div className={`status-dot ${
+                                      p.stats.includes("Completed") ? 'bg-cyber-green' :
+                                      p.stats.includes("Deployed") ? 'bg-cyber-cyan' : 'bg-cyber-amber'
+                                  }`} />
+                                  {p.stats.includes("Completed") ? 'STABLE' : p.stats.includes("Deployed") ? 'DEPLOYED' : 'WIP'}
                                 </div>
                               </div>
                               <p className="text-[10px] opacity-60 mb-3 line-clamp-2 h-8">{p.description}</p>
                               <div className="flex justify-between items-center">
-                                <span className="text-[8px] font-terminal text-white/30 uppercase truncate">{p.stats}</span>
-                                <button onClick={() => handleQuickCommand(`/projects ${p.slug}`)} className="btn-secondary py-0.5 px-2 text-[9px]">MOUNT</button>
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={() => window.open(p.repoUrl, "_blank", "noopener,noreferrer")}
+                                        className="text-white/40 hover:text-cyber-cyan transition-colors"
+                                        title="View Source"
+                                    >
+                                        <Github className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        onClick={() => setInspectingProject(p)}
+                                        className="text-white/40 hover:text-cyber-amber transition-colors"
+                                        title="Inspect Data"
+                                    >
+                                        <Cpu className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                                <button onClick={() => navigateTo('projects')} className="btn-secondary py-0.5 px-2 text-[9px] opacity-0 group-hover:opacity-100 transition-opacity">MOUNT</button>
                               </div>
                             </div>
                           ))}
                         </div>
                       )}
 
+                      {line.componentName === "game" && (
+                        <TerminalShooter
+                          onGameOver={(finalScore) => {
+                            appendLine(`GAME_OVER: MISSION FAILED. SCORE: ${finalScore}`, "error");
+                            handleScoreSubmission("OPERATOR", finalScore, "BUG_BLASTER");
+                          }}
+                        />
+                      )}
+
                       {line.componentName === "leaderboard" && (
                         <div className="data-panel overflow-hidden border-cyber-cyan/30">
-                          <div className="bg-cyber-cyan/5 px-4 md:px-6 py-3 md:py-4 border-b border-cyber-cyan/10">
+                          <div className="bg-cyber-cyan/5 px-4 md:px-6 py-3 md:py-4 border-b border-cyber-cyan/10 flex justify-between items-center">
                             <h2 className="panel-title text-cyber-cyan text-xs md:text-sm">COGNITIVE_LEADERBOARD</h2>
+                            <button
+                              onClick={() => { fetchLeaderboard(); playClickSound(); }}
+                              className="btn-icon w-6 h-6 border-none text-cyber-cyan/60 hover:text-cyber-cyan"
+                              title="Refresh Leaderboard"
+                            >
+                              <RefreshCw className={`w-3.5 h-3.5 ${loadingLeaders ? 'animate-spin' : ''}`} />
+                            </button>
                           </div>
                           <div className="overflow-x-auto">
                             <table className="w-full text-left font-terminal text-[10px] md:text-[11px]">
@@ -794,6 +912,37 @@ export default function TerminalDashboard() {
                               </tbody>
                             </table>
                           </div>
+                        </div>
+                      )}
+
+                      {line.componentName === "contact" && (
+                        <div className="grid gap-4 md:grid-cols-3">
+                          {CONTACT_LINKS.map((link) => (
+                            <a
+                              key={link.label}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="data-panel p-4 group relative flex flex-col items-center text-center transition-all duration-300 hover:border-white/40"
+                              style={{ '--primary': link.color } as any}
+                            >
+                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="status-badge bg-cyber-green/10 text-cyber-green border border-cyber-green/20 scale-75">
+                                  <div className="status-dot bg-cyber-green" />LINK ACTIVE
+                                </div>
+                              </div>
+                              <div className="mb-3 p-3 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
+                                {link.icon === 'github' && <Github className="w-6 h-6" style={{ color: link.color }} />}
+                                {link.icon === 'mail' && <Mail className="w-6 h-6" style={{ color: link.color }} />}
+                                {link.icon === 'linkedin' && <Linkedin className="w-6 h-6" style={{ color: link.color }} />}
+                              </div>
+                              <div className="font-display text-xs tracking-widest text-white/90 mb-1">{link.label}</div>
+                              <div className="font-terminal text-[10px] text-white/40 group-hover:text-white/60 transition-colors">{link.handle}</div>
+                              <div className="mt-3 text-[10px] text-cyber-cyan opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0">
+                                OPEN_CHANNEL →
+                              </div>
+                            </a>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -836,6 +985,49 @@ export default function TerminalDashboard() {
         </main>
       </div>
 
+      {inspectingProject && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="data-panel w-full max-w-2xl max-h-[80vh] flex flex-col border-cyber-amber/40">
+                <div className="bg-cyber-amber/10 px-4 py-3 border-b border-cyber-amber/20 flex justify-between items-center">
+                    <h3 className="font-display text-cyber-amber text-sm tracking-widest uppercase">INSPECTING_PROJECT: {inspectingProject.name}</h3>
+                    <button onClick={() => setInspectingProject(null)} className="text-cyber-amber/60 hover:text-cyber-amber"><X className="w-5 h-5"/></button>
+                </div>
+                <div className="p-6 overflow-y-auto font-terminal space-y-6">
+                    <div>
+                        <p className="text-[10px] text-white/40 uppercase mb-2 tracking-widest">{">> ANALYZING_STACK"}</p>
+                        <div className="flex flex-wrap gap-2">
+                            {inspectingProject.tech.map(t => (
+                                <span key={t} className="bg-white/5 border border-white/10 px-2 py-1 text-[10px] text-white/70">{t}</span>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="flex justify-between items-center mb-2">
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest">{">> SOURCE_SIMULATION"}</p>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(inspectingProject.simulationCode);
+                                    playClickSound(800);
+                                }}
+                                className="text-[9px] text-cyber-cyan hover:underline flex items-center"
+                            >
+                                <Copy className="w-3 h-3 mr-1" /> COPY_CODE
+                            </button>
+                        </div>
+                        <pre className="bg-black/60 p-4 rounded text-[10px] text-cyber-green overflow-x-auto border border-white/5">
+                            {inspectingProject.simulationCode}
+                        </pre>
+                    </div>
+                </div>
+                <div className="p-4 bg-black/40 border-t border-white/5 flex justify-end">
+                    <button onClick={() => window.open(inspectingProject.repoUrl, '_blank')} className="btn-primary py-1.5 px-4 text-xs">
+                        <Github className="w-3.5 h-3.5 mr-2" /> OPEN_REPOSITORY
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
       <footer className="h-8 bg-black border-t border-cyber-cyan/20 flex justify-between items-center px-4 shrink-0 text-[8px] md:text-[9px] font-terminal text-cyber-cyan/60 uppercase tracking-widest z-50">
         <div className="flex space-x-4">
           <span className="hidden xs:inline text-white/20">[ESC: BACK]</span>
@@ -843,8 +1035,9 @@ export default function TerminalDashboard() {
           <span className="text-white/20">[ENT: SEL]</span>
         </div>
         <div className="flex space-x-4 items-center">
-          <div className="hidden sm:block">PING: 12ms</div>
-          <div className="border-l border-cyber-cyan/10 pl-4 md:pl-6 truncate max-w-[100px] md:max-w-none">USER: VISITOR_001</div>
+          <div className="hidden sm:block">HK v1.0.0 — MIT</div>
+          <a href="https://github.com/HAliveKP" target="_blank" className="hover:text-cyber-cyan transition-colors"><Github className="w-3 h-3" /></a>
+          <div className="border-l border-cyber-cyan/10 pl-4 md:pl-6 truncate max-w-[100px] md:max-w-none">PING: 12ms | VISITOR_001</div>
         </div>
       </footer>
     </div>

@@ -72,14 +72,14 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
         const timer = setTimeout(() => {
           setCurrentCharIndex(prev => prev + 1);
           if (currentCharIndex % 3 === 0) playBeep(440 + currentLineIndex * 20, 0.05);
-        }, 30);
+        }, 18);
         return () => clearTimeout(timer);
       } else {
         const timer = setTimeout(() => {
           setDisplayedLogs(prev => [...prev, currentFullLine]);
           setCurrentLineIndex(prev => prev + 1);
           setCurrentCharIndex(0);
-        }, 100);
+        }, 80);
         return () => clearTimeout(timer);
       }
     } else {
@@ -97,7 +97,7 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
         }
         return prev + 5;
       });
-    }, 200);
+    }, 100);
     return () => clearInterval(timer);
   }, []);
 
@@ -106,7 +106,7 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
     setIsGlitching(true);
     setTimeout(() => {
       onBootComplete();
-    }, 300);
+    }, 400);
   };
 
   const renderProgressBar = () => {
@@ -160,7 +160,7 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
             {currentLineIndex < BOOT_LOGS.length && (
               <div className="flex items-start">
                 <span className="text-cyber-cyan/40 mr-2">[{currentLineIndex.toString().padStart(2, "0")}]</span>
-                <span>{BOOT_LOGS[currentLineIndex].substring(0, currentCharIndex)}<span className="animate-pulse">_</span></span>
+                <span>{BOOT_LOGS[currentLineIndex].substring(0, currentCharIndex)}<span className="animate-pulse font-bold text-cyber-cyan">▋</span></span>
               </div>
             )}
           </div>

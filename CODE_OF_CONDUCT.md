@@ -61,9 +61,9 @@ This Code of Conduct also applies when an individual is representing the project
 
 For reports or questions about the Code of Conduct:
 
-- Contact project maintainers
-- Email: maintainers@example.com
+- Contact project maintainers via GitHub Issues
 - Report via GitHub Issues (mark as sensitive)
+- Reach out through GitHub Discussions
 
 ## Attribution
 

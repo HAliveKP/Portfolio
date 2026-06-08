@@ -1,43 +1,53 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
-import { Terminal, Cpu, Database, Eye, Shield, Wifi } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Terminal, Cpu, Shield, Wifi } from "lucide-react";
 
 interface BootScreenProps {
   onBootComplete: () => void;
 }
 
-export default function BootScreen({ onBootComplete }: BootScreenProps) {
-  const [bootStep, setBootStep] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [diagnostics, setDiagnostics] = useState<string[]>([]);
-  const [synthLoaded, setSynthLoaded] = useState(false);
+const BOOT_LOGS = [
+  "INITIALIZING COGNITIVE INTERFACE SYSTEM MATRIX...",
+  "DETECTATIVE ARCHITECTURE: INTEL(R) CORE(TM) NEURAL EXTRAPOLATION_V3",
+  "CHECKING VIRTUAL SOCKET INGRESS ENVELOPES... STABLE",
+  "MAPPING COMPUTER VISION REPOSITORIES (YOLO GRAPHICS ADAPTER)... OK",
+  "CALCULATING ECO-ACCOUNTING COEFFICIENTS (GREEN COMPASS CORE v1.2)... LOADED",
+  "SEEKING COMMUNITY SKILLS BARTER DIRECTORIES (SAHAYOGI STORAGE)... INITIALIZED",
+  "SECURE SOCKET CONNECTION BINDING AT HOST 0.0.0.0:3000... ESTABLISHED",
+  "AISTUDIO GEMINI-3.5-FLASH PROCESSOR SYNERGY STACK... CONNECTED",
+  "PRE-PARSING CRYPTO REPUTATION ALGORITHMIC CHALLENGES... READY",
+  "OS SYSTEM LEVEL: HK RETRO-FUTURE PORTFOLIO TERMINAL SECURE LINK v1.0.0"
+];
 
-  // Sound generator using Web Audio API (completely zero-dependency retro sound FX!)
+export default function BootScreen({ onBootComplete }: BootScreenProps) {
+  const [displayedLogs, setDisplayedLogs] = useState<string[]>([]);
+  const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
+  const [bootProgress, setBootProgress] = useState(0);
+  const [isBooted, setIsBooted] = useState(false);
+  const [isGlitching, setIsGlitching] = useState(false);
+
+  // Sound generator
   const playBeep = (freq: number, duration: number, type: OscillatorType = "sine") => {
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      
       osc.type = type;
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-      
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + duration);
-    } catch (e) {
-      // Audio context might be blocked or unsupported
-    }
+    } catch (e) {}
   };
 
   const playStartupSound = () => {
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const now = audioCtx.currentTime;
-      // Arpeggio
       const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
       notes.forEach((note, index) => {
         const osc = audioCtx.createOscillator();
@@ -54,133 +64,137 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
     } catch (e) {}
   };
 
-  const bootLogs = [
-    "INITIALIZING COGNITIVE INTERFACE SYSTEM MATRIX...",
-    "DETECTATIVE ARCHITECTURE: INTEL(R) CORE(TM) NEURAL EXTRAPOLATION_V3",
-    "CHECKING VIRTUAL SOCKET INGRESS ENVELOPES... STABLE",
-    "MAPPING COMPUTER VISION REPOSITORIES (YOLO GRAPHICS ADAPTER)... OK",
-    "CALCULATING ECO-ACCOUNTING COEFFICIENTS (GREEN COMPASS CORE v1.2)... LOADED",
-    "SEEKING COMMUNITY SKILLS BARTER DIRECTORIES (SAHAYOGI STORAGE)... INITIALIZED",
-    "SECURE SOCKET CONNECTION BINDING AT HOST 0.0.0.0:3000... ESTABLISHED",
-    "AISTUDIO GEMINI-3.5-FLASH PROCESSOR SYNERGY STACK... CONNECTED",
-    "PRE-PARSING CRYPTO REPUTATION ALGORITHMIC CHALLENGES... READY",
-    "OS SYSTEM LEVEL: HK RETRO-FUTURE PORTFOLIO TERMINAL SECURE LINK v1.2.9"
-  ];
-
+  // Typewriter effect logic
   useEffect(() => {
-    if (bootStep < bootLogs.length) {
-      const timer = setTimeout(() => {
-        setDiagnostics((prev) => [...prev, bootLogs[bootStep]]);
-        playBeep(440 + bootStep * 80, 0.08, "sine");
-        setBootStep((prev) => prev + 1);
-      }, 350 + Math.random() * 200);
-      return () => clearTimeout(timer);
+    if (currentLineIndex < BOOT_LOGS.length) {
+      const currentFullLine = BOOT_LOGS[currentLineIndex];
+      if (currentCharIndex < currentFullLine.length) {
+        const timer = setTimeout(() => {
+          setCurrentCharIndex(prev => prev + 1);
+          if (currentCharIndex % 3 === 0) playBeep(440 + currentLineIndex * 20, 0.05);
+        }, 30);
+        return () => clearTimeout(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setDisplayedLogs(prev => [...prev, currentFullLine]);
+          setCurrentLineIndex(prev => prev + 1);
+          setCurrentCharIndex(0);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
     } else {
-      setSynthLoaded(true);
+      setIsBooted(true);
     }
-  }, [bootStep]);
+  }, [currentLineIndex, currentCharIndex]);
+
+  // Progress bar logic
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBootProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(timer);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 200);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleStart = () => {
-    setHasStarted(true);
     playStartupSound();
-    // Delay for transition
+    setIsGlitching(true);
     setTimeout(() => {
       onBootComplete();
-    }, 1200);
+    }, 300);
+  };
+
+  const renderProgressBar = () => {
+    const totalBlocks = 20;
+    const filledBlocks = Math.floor((bootProgress / 100) * totalBlocks);
+    return "█".repeat(filledBlocks) + "░".repeat(totalBlocks - filledBlocks);
   };
 
   return (
-    <div className="min-h-screen bg-cyber-dark relative flex items-center justify-center p-4 overflow-hidden led-grid crt-screen-distorted selection:bg-cyber-green selection:text-black">
-      {/* Laser horizontal sweep lines animation */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-cyber-green/10 shadow-[0_0_15px_#00ff66] pointer-events-none scanline-sweep z-50" />
+    <div className={`min-h-screen bg-[#080b0f] relative flex items-center justify-center p-4 overflow-hidden ${isGlitching ? 'animate-glitch' : ''}`}>
+      <div className="noise-overlay" />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
-        animate={hasStarted ? { opacity: 0, scale: 1.05 } : { opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-        className="w-full max-w-3xl terminal-panel p-6 md:p-8 rounded-lg relative overflow-hidden flex flex-col justify-between min-h-[550px] border border-cyber-green/20"
-        style={{ boxShadow: "0 0 35px rgba(0, 255, 102, 0.05)" }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-3xl data-panel p-8 min-h-[500px] flex flex-col justify-between z-10"
       >
-        {/* Panel Glitch Overlay corner symbols */}
-        <div className="absolute top-2 left-2 text-[10px] text-cyber-green/40 font-mono">
-          SYS.BOOT_DEC_v1.2.9 // [HK-OS]
-        </div>
-        <div className="absolute top-2 right-2 flex space-x-2 text-cyber-green/40">
-          <Shield className="w-4.5 h-4.5 animate-pulse-slow" />
-          <Wifi className="w-4.5 h-4.5" />
+        <div className="flex justify-between items-start mb-6">
+          <div className="text-[10px] font-terminal text-cyber-cyan/40">
+            HK_OS_V1.0.0 // SYSTEM_BOOT
+          </div>
+          <div className="flex space-x-2 text-cyber-cyan/40">
+            <Shield className="w-4 h-4 animate-pulse" />
+            <Wifi className="w-4 h-4" />
+          </div>
         </div>
 
-        {/* Head branding */}
-        <div className="text-center pt-4 select-none">
+        <div className="text-center mb-8">
           <motion.div
-            animate={{ scale: [1, 1.01, 1] }}
+            animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 4, repeat: Infinity }}
-            className="inline-flex items-center justify-center space-x-2 bg-cyber-green/10 text-cyber-green border border-cyber-green/30 px-3 py-1.5 rounded-full text-xs font-mono tracking-widest glow-green mb-4"
+            className="inline-flex items-center space-x-2 bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 px-3 py-1 rounded-full text-[10px] font-display tracking-widest mb-4"
           >
-            <Cpu className="w-4 h-4 animate-spin-slow" />
-            <span>AUTHENTIC CORE IDENTIFICATION MATRIX</span>
+            <Cpu className="w-3 h-3 animate-spin" />
+            <span>NEURAL CORE ACTIVE</span>
           </motion.div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyber-green via-cyber-blue to-emerald-400 font-mono">
-            Hkp_os v1.2
-          </h1>
-          <p className="text-xs text-cyber-green/60 uppercase tracking-[0.2em] font-mono mt-1">
-            RETRO-FUTURISTIC CYBERNETIC COGNITION PORFTOLIO
+          <h1 className="text-4xl md:text-6xl mb-2 font-display">HK_TERMINAL</h1>
+          <p className="text-[10px] text-cyber-cyan/60 uppercase tracking-[0.3em] font-body">
+            Neon-Phosphor Noir Interface
           </p>
         </div>
 
-        {/* Simulated Bios logs */}
-        <div className="bg-black/60 border border-cyber-green/10 rounded p-4 font-mono text-[11px] md:text-xs text-cyber-green/80 flex-grow my-6 overflow-y-auto max-h-[220px] h-[220px] scrollbar-thin">
-          <div className="space-y-1.5">
-            {diagnostics.map((line, i) => (
+        <div className="bg-black/60 border border-cyber-cyan/10 p-4 font-terminal text-xs text-cyber-green/80 flex-grow mb-6 overflow-y-auto max-h-[200px] scrollbar-thin">
+          <div className="space-y-1">
+            {displayedLogs.map((log, i) => (
               <div key={i} className="flex items-start">
-                <span className="text-cyber-green/40 mr-2 select-none">[{i.toString().padStart(2, "0")}]</span>
-                <span className="break-all">{line}</span>
+                <span className="text-cyber-cyan/40 mr-2">[{i.toString().padStart(2, "0")}]</span>
+                <span>{log}</span>
               </div>
             ))}
-            {bootStep < bootLogs.length && (
-              <div className="flex items-center space-x-1 mt-1 text-cyber-blue">
-                <span className="animate-pulse">▒</span>
-                <span className="text-[10px] tracking-widest uppercase">READING SYSTEM CLUSTERS...</span>
+            {currentLineIndex < BOOT_LOGS.length && (
+              <div className="flex items-start">
+                <span className="text-cyber-cyan/40 mr-2">[{currentLineIndex.toString().padStart(2, "0")}]</span>
+                <span>{BOOT_LOGS[currentLineIndex].substring(0, currentCharIndex)}<span className="animate-pulse">_</span></span>
               </div>
-            )}
-            {synthLoaded && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="text-cyber-blue mt-3 border-t border-cyber-green/10 pt-2 flex items-center justify-between"
-              >
-                <span>[SYSTEM CHECK COMPLETED: POOL NOMINAL]</span>
-                <span>SYS_PORT_3000_OK</span>
-              </motion.div>
             )}
           </div>
         </div>
 
-        {/* Start Button area */}
-        <div className="flex flex-col items-center justify-center pt-2">
-          {synthLoaded ? (
-            <motion.button
-              id="start-connection-button"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleStart}
-              className="relative px-8 py-3.5 bg-gradient-to-r from-cyber-green/20 to-cyber-blue/20 hover:from-cyber-green/30 hover:to-cyber-blue/30 text-cyber-green rounded border border-cyber-green/50 font-bold uppercase tracking-widest text-sm cursor-pointer glow-green shadow-[0_0_20px_rgba(0,255,102,0.15)] flex items-center space-x-3 transition-all duration-300 group overflow-hidden"
-            >
-              {/* Button light sweeps */}
-              <div className="absolute top-0 -left-16 w-12 h-full bg-white/10 skew-x-12 group-hover:animate-[sweep_1s_ease-out_infinite]" style={{ animation: "sweep 1.5s ease-out infinite" }} />
-              <Terminal className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-              <span>INITIALIZE CORE CONNECTION</span>
-            </motion.button>
-          ) : (
-            <div className="flex items-center space-x-3 text-cyber-green/40 font-mono text-xs select-none">
-              <div className="w-5 h-5 border-2 border-t-transparent border-cyber-green animate-spin rounded-full" />
-              <span>CALIBRATING HOLOGRAPH DETECTOR INDEX...</span>
+        <div className="flex flex-col items-center">
+          <div className="w-full max-w-md mb-6">
+            <div className="flex justify-between text-[10px] font-terminal text-cyber-cyan/60 mb-2">
+              <span>SYSTEM_LOAD</span>
+              <span>{bootProgress}%</span>
             </div>
-          )}
-          <div className="mt-4 text-[10px] text-cyber-green/30 uppercase tracking-[0.1em] font-mono text-center">
-            Clicking Starts Secure Fullstack Emulated Terminal Stream // No Assets Required
+            <div className="font-terminal text-cyber-cyan tracking-widest text-lg md:text-xl text-center">
+              [{renderProgressBar()}]
+            </div>
           </div>
+
+          <AnimatePresence>
+            {isBooted && bootProgress === 100 ? (
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={handleStart}
+                className="btn-primary group"
+              >
+                <div className="btn-primary-accent" />
+                <Terminal className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
+                <span>EXECUTE CORE_CONNECTION</span>
+              </motion.button>
+            ) : (
+              <div className="text-[10px] font-terminal text-cyber-cyan/40 animate-pulse uppercase tracking-widest">
+                Waiting for system calibration...
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </div>

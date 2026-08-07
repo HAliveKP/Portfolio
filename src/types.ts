@@ -4,8 +4,10 @@ export type OutputLineType =
   | "error" 
   | "success" 
   | "accent"
-  | "ascii" 
-  | "custom";
+  | "ascii"
+  | "custom"
+  | "chat_user"
+  | "chat_ai";
 
 export interface TerminalLine {
   id: string;
@@ -13,6 +15,7 @@ export interface TerminalLine {
   text: string;
   componentName?: string; // Optional identifier to render special JSX widgets
   componentProps?: any;   // Props passed to the custom components
+  isTyping?: boolean;     // AI response streaming indicator
 }
 
 export interface ProjectDef {

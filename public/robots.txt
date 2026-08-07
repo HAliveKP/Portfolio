@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://harikrishnapokhrel.com.np/sitemap.xml

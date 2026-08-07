@@ -1,152 +1,133 @@
 import { ProjectDef, PuzzleDef } from "../types";
 
+// All project data verified against the live GitHub repos (2026-08-07).
+// No fabricated stats: star/fork counts and "active users" are NOT claimed.
+// simulationCode blocks are short representative patterns matching each
+// project's real stack, not verbatim repo excerpts.
+
 export const PROJECTS_REGISTRY: ProjectDef[] = [
   {
     id: "proj-1",
-    slug: "greencompass",
-    name: "Green Compass",
-    description: "An advanced Carbon Accounting and Environmental Recovery Modeling engine. Features structural emission tracing, real-time climate telemetry, and mathematical carbon offsets auditing calculators.",
-    tech: ["Python", "Flask", "Tailwind CSS", "Recharts", "Scikit-Learn"],
-    repoUrl: "https://github.com/HAliveKP/GreenCompass",
-    stats: "Stars: 14 | Forks: 3 | Status: Completed",
-    simulationCode: `// GreenCompass Emission Matrix Evaluator
-class CarbonAccountingEngine:
-    def __init__(self, region_factor=0.478):
-        self.scope_1_coefficient = 1.2  # direct fuel combustion
-        self.scope_2_coefficient = region_factor # power grids
-        
-    def calculate_footprint(self, direct_kwh, fuel_liters):
-        direct_emissions = fuel_liters * self.scope_1_coefficient
-        indirect_emissions = direct_kwh * self.scope_2_coefficient
-        total_co2_kg = direct_emissions + indirect_emissions
-        mitigation_index = self._compute_mitigation(total_co2_kg)
-        return {
-            "total_co2_kg": round(total_co2_kg, 2),
-            "offsets_required": round(total_co2_kg / 1000, 3),
-            "ecological_mitigation_index": f"{mitigation_index * 100:.1f}%"
-        }
-        
-    def _compute_mitigation(self, ems):
-        return 1.0 / (1.0 + (ems / 50000.0)) # logistic decay curve`
+    slug: "bot",
+    name: "Discord Hermes Admin Bot",
+    description:
+      "A natural-language Discord administration bot driven by an LLM planner. Ask for something in plain English and it restructures channels, roles, and study plans. Ships as a Dockerised FastAPI service with Redis-backed state.",
+    tech: ["Python", "FastAPI", "discord.py", "Docker", "Redis", "LLM Agents"],
+    repoUrl: "https://github.com/HAliveKP/Bot",
+    stats: "Status: Active | CI: passing | v1.0.0",
+    simulationCode: `// Discord Hermes Admin Bot - FastAPI intent route (representative)
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI(title="Hermes Admin Bot")
+
+class Command(BaseModel):
+    user_id: str
+    instruction: str  # e.g. "create a study plan channel for OOP"
+
+@app.post("/dispatch")
+async def dispatch(cmd: Command):
+    plan = await planner.parse(cmd.instruction)   # LLM intent -> steps
+    if not plan.steps:
+        raise HTTPException(400, detail="Unparseable instruction")
+    results = await executor.run(plan, actor=cmd.user_id)  # discord API calls
+    return {"plan": plan.summary, "results": results}`
   },
   {
     id: "proj-2",
-    slug: "sahayogi",
-    name: "Sahayogi",
-    description: "A community-focused offline-friendly Skill Bartering exchange system, connecting local talent to reduce currency dependency. Outfitted with skill categories, swap recommendations, and secure messaging portals.",
-    tech: ["Python", "Flask", "MySQL", "Tailwind CSS", "Bootstrap", "AJAX"],
-    repoUrl: "https://github.com/HAliveKP/Crediskill", // Relevant skills barter repo
-    stats: "Stars: 8 | Active Users: 120+ | Status: Deployed",
-    simulationCode: `// Sahayogi Swapping recommendation algorithm
-def compute_bartering_match(users_db, current_user_id):
-    current = users_db.get(current_user_id)
-    matches = []
-    for uid, profile in users_db.items():
-        if uid == current_user_id: continue
-        # Find matches where target offers what current wants, and vice-versa
-        overlapping_offers = set(current['offers']).intersection(set(profile['wants']))
-        overlapping_wants = set(current['wants']).intersection(set(profile['offers']))
-        if overlapping_offers or overlapping_wants:
-            score = len(overlapping_offers) * 50 + len(overlapping_wants) * 50
-            matches.append({
-                "username": profile['username'],
-                "match_score": score,
-                "overlap_exchange": list(overlapping_offers | overlapping_wants)
-            })
-    return sorted(matches, key=lambda x: x["match_score"], reverse=True)`
+    slug: "greencompass",
+    name: "Green Compass",
+    description:
+      "Carbon intelligence dashboard for Nepal — real-time carbon index tracking for Kathmandu, Bhaktapur, and Lalitpur, footprint calculators, and 5-year forecasts powered by Google Gemini.",
+    tech: ["React", "Vite", "Tailwind CSS", "Google Gemini AI", "Recharts"],
+    repoUrl: "https://github.com/HAliveKP/GreenCompass",
+    stats: "Status: Live | green-compass-seven.vercel.app",
+    simulationCode: `// Green Compass - Gemini-powered carbon forecast (representative)
+// React + Vite + Tailwind; data generated via Google Gemini 1.5 Flash
+const forecast = await fetchGemini(
+  'Given the carbon index series for ' + city +
+  ', produce a 5-year monthly forecast in JSON.');
+const series = parseForecast(forecast);
+<LineChart width={720} height={320} data={series}>
+  <Line type="monotone" dataKey="carbon_index" stroke="#22d3ee" />
+</LineChart>`
   },
   {
     id: "proj-3",
-    slug: "skillbridge",
-    name: "SkillBridge (CrediSkill)",
-    description: "An offline-first platform designed to stimulate youth economic empowerment and localized employment matching in rural districts. Includes specialized skill logs, P2P credential syncing, and localized job caches.",
-    tech: ["Java", "Android SDK", "Room Database", "Retrofit", "SQLite"],
+    slug: "crediskill",
+    name: "CrediSkill Nepal",
+    description:
+      "Hackathon platform that connects skills with fair-paying jobs: skill quizzes, job listings, and leaderboards for Nepalese job-seekers. Node.js + Express + SQLite.",
+    tech: ["Node.js", "Express", "SQLite", "HTML/CSS/JS", "REST API"],
     repoUrl: "https://github.com/HAliveKP/Crediskill",
-    stats: "Stars: 19 | Downloads: 400+ | License: Apache-2.0",
-    simulationCode: `@Entity(tableName = "skills_ledger")
-public class SkillBridgeItem {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-    
-    @ColumnInfo(name = "user_handle")
-    private String userHandle;
-    
-    @ColumnInfo(name = "certified_capability")
-    private String certifiedCapability;
-    
-    @ColumnInfo(name = "reputation_index")
-    private float reputationIndex;
-    
-    public SkillBridgeItem(String userHandle, String certifiedCapability, float reputationIndex) {
-        this.userHandle = userHandle;
-        this.certifiedCapability = certifiedCapability;
-        this.reputationIndex = Math.min(reputationIndex, 5.0f);
-    }
-    // Getters and Setters ...
-}`
+    stats: "Status: Hackathon project | Built for Nepali job-seekers",
+    simulationCode: `// CrediSkill Nepal - Express route (representative)
+app.get("/api/jobs", (req, res) => {
+  const q = (req.query.q || "").toString().toLowerCase();
+  const jobs = db.prepare(
+    "SELECT * FROM jobs WHERE LOWER(title) LIKE ?"
+  ).all(\`%\${q}%\`);
+  res.json({ jobs, total: jobs.length });
+});
+
+app.post("/api/quiz/submit", (req, res) => {
+  const { skillId, answers } = req.body;
+  const score = gradeQuiz(skillId, answers);
+  res.json({ score, badge: score >= 80 ? "SKILL_VERIFIED" : "IN_PROGRESS" });
+});`
   },
   {
     id: "proj-4",
-    slug: "yolo_vision",
-    name: "YOLO Vision Systems",
-    description: "Cutting-edge computer vision system leveraging convolutional neural networks in YOLOv3 to execute highly dynamic Nepalese currency denomination classification and secure high-speed vehicle tracking.",
-    tech: ["Python", "YOLOv3 / YOLOv8", "OpenCV", "PyTorch", "TensorFlow"],
-    repoUrl: "https://github.com/HAliveKP/Student-Course-Registration-System", // Vision portfolio section
-    stats: "Accuracy: 94.2% | Inference: 15ms | Status: Production Config",
-    simulationCode: `# YOLOv3 / OpenCV Vehicle and Currency Detection Node
-import cv2
-import numpy as np
-
-def process_vision_frame(net, output_names, frame, confidence_threshold=0.5):
-    h, w = frame.shape[:2]
-    # Feed image into YOLOv3 DNN
-    blob = cv2.dnn.blobFromImage(frame, 1/255.0, (416, 416), swapRB=True, crop=False)
-    net.setInput(blob)
-    layer_outputs = net.forward(output_names)
-    
-    boxes, confidences, class_ids = [], [], []
-    for output in layer_outputs:
-        for detection in output:
-            scores = detection[5:]
-            class_id = np.argmax(scores)
-            confidence = scores[class_id]
-            if confidence > confidence_threshold:
-                # Localize bounding rect bounding coordinates
-                center_x, center_y = int(detection[0] * w), int(detection[1] * h)
-                width, height = int(detection[2] * w), int(detection[3] * h)
-                x = int(center_x - width / 2)
-                y = int(center_y - height / 2)
-                boxes.append([x, y, width, height])
-                confidences.append(float(confidence))
-                class_ids.append(class_id)
-                
-    return {"classifications_count": len(boxes), "bounding_matrices": boxes, "accuracies": confidences}`
+    slug: "research-assistant",
+    name: "Smart Research Assistant",
+    description:
+      "Final-year capstone: a multi-agent AI research system with orchestrator, researcher, analyzer, and writer agents, MCP integration, and full observability. Generate structured research reports from a single topic.",
+    tech: ["Python", "Multi-Agent LLM", "MCP", "Orchestration", "Observability"],
+    repoUrl: "https://github.com/HAliveKP/smart-research-assistant",
+    stats: "Status: Capstone (ST4003CMD) | Agent architecture",
+    simulationCode: `// Smart Research Assistant - orchestrator loop (representative)
+async def research_pipeline(topic: str) -> Report:
+    plan = await orchestrator.plan(topic)          # split into tasks
+    results = await gather(researcher.run(t) for t in plan.tasks)
+    analysis = await analyzer.synthesize(results)
+    return await writer.compose(analysis)          # structured report`
   },
   {
     id: "proj-5",
+    slug: "portfolio",
+    name: "Terminal Portfolio",
+    description:
+      "This very site — a gamified retro-futuristic terminal OS portfolio with a virtual filesystem, coding challenges, a live leaderboard, and a Gemini-powered AI clone.",
+    tech: ["TypeScript", "React 19", "Vite", "Tailwind CSS 4", "Express", "Gemini"],
+    repoUrl: "https://github.com/HAliveKP/Portfolio",
+    stats: "Status: Live | harikrishnapokhrel.com.np",
+    simulationCode: `// Terminal Portfolio - command dispatcher (representative)
+switch (command) {
+  case "/projects": mountProject(args); break;
+  case "/play": startChallenge(difficulty()); break;
+  case "/ask": await askAiClone(prompt); break;
+  case "/clear": flushHistory(); break;
+  default: appendLine("COMMAND FAULT: unknown command", "error");
+}`
+  },
+  {
+    id: "proj-6",
     slug: "registration_sys",
     name: "Student Course Registration System",
-    description: "A secure, desktop-management platform constructed to easily schedule, catalog, query, and enforce academic pre-requisites mapping on tertiary registration pipelines.",
-    tech: ["Java", "MySQL", "JDBC", "Log4j", "Swing UI"],
+    description:
+      "Web-based course registration system built with Flask, OOP architecture, and a modern glassmorphism UI — course cataloguing, pre-requisite enforcement, and enrolment management.",
+    tech: ["Python", "Flask", "SQLite", "OOP", "Glassmorphism UI"],
     repoUrl: "https://github.com/HAliveKP/Student-Course-Registration-System",
-    stats: "Stars: 10 | Integrity Check: SHA-256 | Version: 1.0.4",
-    simulationCode: `// Java Database Course pre-requisite integrity validation
-public boolean registerStudentWithPreReqs(Connection conn, String studentId, String courseId) throws SQLException {
-    String query = "SELECT prerequisite_id FROM course_prereqs WHERE course_id = ?";
-    try (PreparedStatement stmt = conn.prepareStatement(query)) {
-        stmt.setString(1, courseId);
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            String preReq = rs.getString("prerequisite_id");
-            if (!hasStudentPassedCourse(conn, studentId, preReq)) {
-                System.out.println("[ACADEMIC DENY] Missing pre-requisite module: " + preReq);
-                return false;
-            }
-        }
-    }
-    // Enroll operations ...
-    return true;
-}`
+    stats: "Status: Completed | Flask + OOP",
+    simulationCode: `// Course Registration System - Flask route (representative)
+@app.route("/api/enroll", methods=["POST"])
+def enroll():
+    data = request.get_json()
+    missing = prerequisite_gate(data["course_id"], data["student_id"])
+    if missing:
+        return {"error": "Pre-requisite not met", "missing": missing}, 409
+    registration_service.enroll(data["student_id"], data["course_id"])
+    return {"status": "ENROLLED"}, 201`
   }
 ];
 

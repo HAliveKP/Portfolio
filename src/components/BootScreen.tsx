@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Terminal, Cpu, Shield, Wifi } from "lucide-react";
 
@@ -8,16 +8,18 @@ interface BootScreenProps {
 
 const BOOT_LOGS = [
   "INITIALIZING COGNITIVE INTERFACE SYSTEM MATRIX...",
-  "DETECTATIVE ARCHITECTURE: INTEL(R) CORE(TM) NEURAL EXTRAPOLATION_V3",
-  "CHECKING VIRTUAL SOCKET INGRESS ENVELOPES... STABLE",
-  "MAPPING COMPUTER VISION REPOSITORIES (YOLO GRAPHICS ADAPTER)... OK",
-  "CALCULATING ECO-ACCOUNTING COEFFICIENTS (GREEN COMPASS CORE v1.2)... LOADED",
-  "SEEKING COMMUNITY SKILLS BARTER DIRECTORIES (SAHAYOGI STORAGE)... INITIALIZED",
+  "MOUNTING GITHUB REPOSITORY INDEX (github.com/HAliveKP)... OK",
+  "LINKING DISCORD AGENT HANDLER (HERMES ADMIN BOT)... OK",
+  "CALIBRATING CARBON TELEMETRY MODULE (GREEN COMPASS)... OK",
+  "SYNCING SKILLS LEDGER (CREDISKILL NEPAL PLATFORM)... OK",
+  "SPAWNING RESEARCH ORCHESTRATOR AGENTS (CAPSTONE)... READY",
+  "GEMINI-2.5-FLASH PROCESSOR SYNERGY STACK... CONNECTED",
   "SECURE SOCKET CONNECTION BINDING AT HOST 0.0.0.0:3000... ESTABLISHED",
-  "AISTUDIO GEMINI-3.5-FLASH PROCESSOR SYNERGY STACK... CONNECTED",
-  "PRE-PARSING CRYPTO REPUTATION ALGORITHMIC CHALLENGES... READY",
+  "LOADING CRYPTO REPUTATION ALGORITHMIC CHALLENGES... READY",
   "OS SYSTEM LEVEL: HK RETRO-FUTURE PORTFOLIO TERMINAL SECURE LINK v1.0.0"
 ];
+
+const SKIP_FLAG = "hk-terminal-skip-boot";
 
 export default function BootScreen({ onBootComplete }: BootScreenProps) {
   const [displayedLogs, setDisplayedLogs] = useState<string[]>([]);
@@ -27,15 +29,27 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
 
-  // Sound generator
-  const playBeep = (freq: number, duration: number, type: OscillatorType = "sine") => {
+  // Return visitors who already saw the boot sequence go straight through.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SKIP_FLAG) === "1") {
+        onBootComplete();
+      }
+    } catch (e) {
+      /* storage unavailable — ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Single soft beep per completed line (was: beep every 3 characters).
+  const playBeep = (freq: number, duration: number) => {
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = type;
+      osc.type = "sine";
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.008, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
@@ -48,18 +62,18 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const now = audioCtx.currentTime;
-      const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+      const notes = [261.63, 329.63, 392.0, 523.25];
       notes.forEach((note, index) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = "sawtooth";
+        osc.type = "sine";
         osc.frequency.setValueAtTime(note, now + index * 0.1);
-        gain.gain.setValueAtTime(0.02, now + index * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.00001, now + index * 0.1 + 0.4);
+        gain.gain.setValueAtTime(0.015, now + index * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.00001, now + index * 0.1 + 0.3);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now + index * 0.1);
-        osc.stop(now + index * 0.1 + 0.5);
+        osc.stop(now + index * 0.1 + 0.35);
       });
     } catch (e) {}
   };
@@ -70,16 +84,16 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
       const currentFullLine = BOOT_LOGS[currentLineIndex];
       if (currentCharIndex < currentFullLine.length) {
         const timer = setTimeout(() => {
-          setCurrentCharIndex(prev => prev + 1);
-          if (currentCharIndex % 3 === 0) playBeep(440 + currentLineIndex * 20, 0.05);
-        }, 30);
+          setCurrentCharIndex((prev) => prev + 1);
+        }, 18);
         return () => clearTimeout(timer);
       } else {
+        playBeep(440 + currentLineIndex * 20, 0.05);
         const timer = setTimeout(() => {
-          setDisplayedLogs(prev => [...prev, currentFullLine]);
-          setCurrentLineIndex(prev => prev + 1);
+          setDisplayedLogs((prev) => [...prev, currentFullLine]);
+          setCurrentLineIndex((prev) => prev + 1);
           setCurrentCharIndex(0);
-        }, 100);
+        }, 90);
         return () => clearTimeout(timer);
       }
     } else {
@@ -90,23 +104,41 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
   // Progress bar logic
   useEffect(() => {
     const timer = setInterval(() => {
-      setBootProgress(prev => {
+      setBootProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
           return 100;
         }
-        return prev + 5;
+        return prev + 6;
       });
-    }, 200);
+    }, 150);
     return () => clearInterval(timer);
   }, []);
 
   const handleStart = () => {
     playStartupSound();
     setIsGlitching(true);
-    setTimeout(() => {
+    exitBoot(() => {
+      try {
+        localStorage.setItem(SKIP_FLAG, "1");
+      } catch (e) {}
       onBootComplete();
-    }, 300);
+    });
+  };
+
+  const [exiting, setExiting] = useState(false);
+
+  const exitBoot = (cb: () => void) => {
+    // Dissolve exit: 65-75% of the entrance duration (motion-design rule).
+    setExiting(true);
+    window.setTimeout(cb, 220);
+  };
+
+  const handleSkip = () => {
+    try {
+      localStorage.setItem(SKIP_FLAG, "1");
+    } catch (e) {}
+    exitBoot(onBootComplete);
   };
 
   const renderProgressBar = () => {
@@ -116,15 +148,33 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
   };
 
   return (
-    <div className={`min-h-screen bg-[#080b0f] relative flex items-center justify-center p-4 overflow-hidden ${isGlitching ? 'animate-glitch' : ''}`}>
+    <div
+      className={`min-h-screen bg-[#080b0f] relative flex items-center justify-center p-4 overflow-hidden transition-all duration-200 ease-out ${
+        isGlitching ? "animate-glitch" : ""
+      } ${exiting ? "opacity-0 scale-[0.985]" : ""}`}
+    >
       <div className="noise-overlay" />
+
+      {/* SKIP is available from the very first frame */}
+      <button
+        onClick={handleSkip}
+        className="absolute top-4 right-4 z-20 font-terminal text-[10px] tracking-widest uppercase text-cyber-cyan/50 hover:text-cyber-cyan border border-cyber-cyan/20 hover:border-cyber-cyan/60 px-3 py-1.5 rounded transition-colors cursor-pointer"
+        aria-label="Skip boot sequence"
+      >
+        SKIP &gt;&gt;
+      </button>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-3xl data-panel p-8 min-h-[500px] flex flex-col justify-between z-10"
       >
-        <div className="flex justify-between items-start mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+          className="flex justify-between items-start mb-6"
+        >
           <div className="text-[10px] font-terminal text-cyber-cyan/40">
             HK_OS_V1.0.0 // SYSTEM_BOOT
           </div>
@@ -132,9 +182,14 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
             <Shield className="w-4 h-4 animate-pulse" />
             <Wifi className="w-4 h-4" />
           </div>
-        </div>
+        </motion.div>
 
-        <div className="text-center mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.22, ease: [0.4, 0, 0.2, 1] }}
+          className="text-center mb-8"
+        >
           <motion.div
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 4, repeat: Infinity }}
@@ -147,9 +202,14 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
           <p className="text-[10px] text-cyber-cyan/60 uppercase tracking-[0.3em] font-body">
             Neon-Phosphor Noir Interface
           </p>
-        </div>
+        </motion.div>
 
-        <div className="bg-black/60 border border-cyber-cyan/10 p-4 font-terminal text-xs text-cyber-green/80 flex-grow mb-6 overflow-y-auto max-h-[200px] scrollbar-thin">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.34, ease: [0.4, 0, 0.2, 1] }}
+          className="bg-black/60 border border-cyber-cyan/10 p-4 font-terminal text-xs text-cyber-green/80 flex-grow mb-6 overflow-y-auto max-h-[200px] scrollbar-thin"
+        >
           <div className="space-y-1">
             {displayedLogs.map((log, i) => (
               <div key={i} className="flex items-start">
@@ -160,13 +220,21 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
             {currentLineIndex < BOOT_LOGS.length && (
               <div className="flex items-start">
                 <span className="text-cyber-cyan/40 mr-2">[{currentLineIndex.toString().padStart(2, "0")}]</span>
-                <span>{BOOT_LOGS[currentLineIndex].substring(0, currentCharIndex)}<span className="animate-pulse">_</span></span>
+                <span>
+                  {BOOT_LOGS[currentLineIndex].substring(0, currentCharIndex)}
+                  <span className="animate-pulse">_</span>
+                </span>
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.46, ease: [0.4, 0, 0.2, 1] }}
+          className="flex flex-col items-center"
+        >
           <div className="w-full max-w-md mb-6">
             <div className="flex justify-between text-[10px] font-terminal text-cyber-cyan/60 mb-2">
               <span>SYSTEM_LOAD</span>
@@ -191,11 +259,11 @@ export default function BootScreen({ onBootComplete }: BootScreenProps) {
               </motion.button>
             ) : (
               <div className="text-[10px] font-terminal text-cyber-cyan/40 animate-pulse uppercase tracking-widest">
-                Waiting for system calibration...
+                Waiting for system calibration... (or hit SKIP)
               </div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );

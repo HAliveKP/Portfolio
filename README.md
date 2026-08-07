@@ -1,317 +1,88 @@
 <div align="center">
-  <h1>🌐 HK Cyber Terminal Portfolio</h1>
-  <p><strong>An Interactive, Gamified Developer Portfolio</strong></p>
-  <p>A retro-futuristic CLI terminal experience showcasing projects, skills, and achievements</p>
+  <h1>🖥️ HK Cyber Terminal Portfolio</h1>
+  <p><strong>An interactive, gamified developer portfolio</strong> — a retro-futuristic terminal OS that visitors explore with real commands.</p>
+  <p>
+    <img alt="Build" src="https://img.shields.io/badge/build-passing-brightgreen" />
+    <img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react" />
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript" />
+    <img alt="Vite" src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite" />
+    <img alt="Tailwind 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss" />
+    <img alt="Gemini" src="https://img.shields.io/badge/Gemini-AI-4285F4?logo=google" />
+  </p>
+  <p><strong>Live:</strong> <a href="https://harikrishnapokhrel.com.np/">harikrishnapokhrel.com.np</a></p>
 </div>
 
 ---
 
-## 📋 Table of Contents
-- [About](#about)
-- [Key Features](#key-features)
-- [Featured Projects](#featured-projects)
-- [Tech Stack](#tech-stack)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Deployment](#deployment)
-- [Project Structure](#project-structure)
+## 🎯 What is this?
 
----
+A terminal-themed portfolio where visitors interact instead of scroll: type `/help`, browse a virtual filesystem with `ls` / `cd` / `cat`, run `cat /projects/bot.md`, try coding challenges with `/play`, check the `/leaderboard`, and ask the `/ask` AI clone about the owner.
 
-## 🎯 About
+## ✨ Features
 
-**HK Cyber Terminal Portfolio** is an innovative, interactive developer portfolio designed as a retro-futuristic CLI terminal. It transforms traditional portfolio presentations into an engaging, gamified experience that showcases technical expertise through dynamic diagnostics, skills visualization, and interactive system games.
-
-The portfolio integrates **Google Gemini API** for intelligent interactions and features real-time leaderboard synchronization, secure message transmission, and immersive terminal-style UI animations.
-
----
-
-## ✨ Key Features
-
-### Core Features
-- 🖥️ **Retro Terminal Interface** - ASCII-style CLI design with modern animations and responsive layout
-- 🎮 **Interactive System Game** - Gamified experience with real-time leaderboard sync
-- 📊 **Dynamic Diagnostics** - Real-time system diagnostics and performance analytics
-- 🎯 **Skills Visualization** - Interactive display of technical competencies and proficiency levels
-- 🔒 **Secure Messaging** - Encrypted message transmission and contact functionality
-- 🌍 **AI-Powered Intelligence** - Google Gemini API integration for smart interactions
-- 📱 **Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- ⚡ **Motion Animations** - Smooth, physics-based animations for immersive experience
-- 🏆 **Leaderboard System** - Real-time ranking with persistent data storage
-- 🎨 **Tailwind CSS Styling** - Modern, customizable design system
-
----
-
-## 💼 Featured Projects
-
-### 1. **Green Compass**
-*Advanced Carbon Accounting & Environmental Recovery Engine*
-
-- **Description:** A sophisticated Carbon Accounting and Environmental Recovery Modeling engine with structural emission tracing and real-time climate telemetry
-- **Features:** Mathematical carbon offsets auditing calculators, emission matrix evaluation, mitigation index computation
-- **Tech Stack:** Python, Flask, Tailwind CSS, Recharts, Scikit-Learn
-- **Status:** ✅ Completed
-- **Repository:** [Green Compass](https://github.com/HAliveKP/GreenCompass)
-- **Stats:** ⭐ 14 Stars | 🔀 3 Forks
-
----
-
-### 2. **Sahayogi**
-*Community-Focused Skill Bartering Exchange System*
-
-- **Description:** An offline-friendly platform connecting local talent to reduce currency dependency and stimulate community economic empowerment
-- **Features:** Skill categories, intelligent swap recommendations, secure messaging portals, bartering match algorithms
-- **Tech Stack:** Python, Flask, MySQL, Tailwind CSS, Bootstrap, AJAX
-- **Status:** 🚀 Deployed
-- **Repository:** [Sahayogi](https://github.com/HAliveKP/Crediskill)
-- **Stats:** ⭐ 8 Stars | 👥 120+ Active Users
-
----
-
-### 3. **SkillBridge (CrediSkill)**
-*Youth Economic Empowerment & Employment Matching Platform*
-
-- **Description:** An offline-first Android application designed to stimulate youth economic empowerment and localized employment matching in rural districts
-- **Features:** Specialized skill logs, P2P credential syncing, localized job caches, reputation indexing, offline functionality
-- **Tech Stack:** Java, Android SDK, Room Database, Retrofit, SQLite
-- **Status:** ✅ Production Ready
-- **Repository:** [SkillBridge](https://github.com/HAliveKP/Crediskill)
-- **Stats:** ⭐ 19 Stars | 📥 400+ Downloads | 📜 Apache-2.0 License
-
----
-
-### 4. **YOLO Vision Systems**
-*Computer Vision & AI-Powered Detection System*
-
-- **Description:** Cutting-edge computer vision system leveraging convolutional neural networks in YOLOv3/v8 for Nepalese currency denomination classification and vehicle tracking
-- **Features:** High-speed object detection, currency recognition, vehicle tracking, 94.2% accuracy on live feeds
-- **Tech Stack:** Python, YOLOv3/v8, OpenCV, PyTorch, TensorFlow
-- **Status:** 🔧 Production Configuration
-- **Performance:** ⚡ 15ms Inference Time | 🎯 94.2% Accuracy
-
----
-
-### 5. **Student Course Registration System**
-*Secure Academic Management Platform*
-
-- **Description:** A robust, desktop-management platform for scheduling, cataloging, querying, and enforcing academic pre-requisites on tertiary registration pipelines
-- **Features:** Pre-requisite validation, integrity checking (SHA-256), course enrollment management, academic pipeline enforcement
-- **Tech Stack:** Java, MySQL, JDBC, Log4j, Swing UI
-- **Status:** ✅ Version 1.0.4
-- **Repository:** [Registration System](https://github.com/HAliveKP/Student-Course-Registration-System)
-- **Stats:** ⭐ 10 Stars
-
----
+- 🖥️ **Terminal interface** — real command parsing, virtual filesystem, autocomplete-friendly UX
+- 🎮 **Coding challenges** — `/play` starts a debugging quiz (Normal / Extra Hard)
+- 🏆 **Leaderboard** — `/leaderboard` shows top quiz scores (in-memory; persists locally in `db_data/`)
+- 🤖 **AI clone** — `/ask [question]` answers via Google Gemini, grounded in verified facts only
+- 📩 **Contact** — `/contact` relays messages to **halivekp@gmail.com** via Resend
+- 📱 **Responsive** — mobile drawer nav, works on phones
+- 🔊 **Sound design** — optional WebAudio chimes (toggle in the header)
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **React 19** - UI framework
-- **TypeScript** - Type-safe development
-- **Vite 6.2** - Lightning-fast build tool
-- **Tailwind CSS 4.1** - Utility-first styling
-- **Lucide React** - Icon library
-- **Motion 12** - Smooth animations
+| Layer | Tools |
+|---|---|
+| Frontend | React 19, TypeScript, Vite 6, Tailwind CSS 4, Motion, Lucide |
+| Backend | Express, tsx, esbuild |
+| AI | Google Gemini (`@google/genai`) |
+| Deploy | Vercel (serverless API) / Docker (self-host) |
 
-### Backend
-- **Express.js** - Node.js web framework
-- **TypeScript** - Backend type safety
-- **tsx** - TypeScript execution for Node
+## 📦 Setup
 
-### API & Services
-- **Google Gemini API** - AI-powered interactions
-- **@google/genai** - Official Gemini SDK
+Prerequisites: **Node.js ≥ 20**.
 
-### Development Tools
-- **ESBuild** - Ultra-fast bundler
-- **Autoprefixer** - CSS vendor prefixes
-- **TypeScript Compiler** - Type checking
-- **TSC** - Linting and validation
-
----
-
-## 📦 Installation
-
-### Prerequisites
-- **Node.js** (v18 or higher)
-- **npm** or **yarn** package manager
-- **Gemini API Key** (from [Google AI Studio](https://ai.studio))
-
-### Setup Steps
-
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/HAliveKP/hk-cyber-terminal-portfolio.git
-   cd hk-cyber-terminal-portfolio
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-   If you have an old or corrupted install, remove `node_modules` and reinstall before running the app.
-
-3. **Configure API Key**
-   - Create a `.env.local` file in the project root
-   - Add your Gemini API key:
-     ```
-     GEMINI_API_KEY=your_api_key_here
-     ```
-
-4. **Verify Installation**
-   ```bash
-   npm run lint
-   ```
-
----
-
-## 🚀 Quick Start
-
-### Development Mode
-Start the development server with hot module replacement:
 ```bash
-npm run dev
+git clone https://github.com/HAliveKP/Portfolio.git
+cd Portfolio
+npm install
+cp .env.example .env.local   # add your GEMINI_API_KEY (+ RESEND_API_KEY for contact)
+npm run dev                  # http://localhost:3000
 ```
-The app will be available at `http://localhost:3000`
 
-### Build for Production
-Create an optimized production build:
+## 🧪 Quality checks
+
 ```bash
-npm run build
+npm run lint   # TypeScript strict type-check
+npm test       # API route tests (node:test)
+npm run build  # production build (static + server bundle)
 ```
 
-### Start Production Server
-Run the production-built application:
-```bash
-npm start
-```
+## 🚀 Deployment
 
-### Run with Docker
-Build and run the production container:
-```bash
-docker compose up --build
-```
+**Vercel (recommended):** connect the repo, set `GEMINI_API_KEY` / `RESEND_API_KEY` as environment variables. `vercel.json` rewrites `/api/*` to the serverless function and everything else to the SPA. The API function is deliberately static-server-free (see `api/index.ts` → `server-core.ts`).
 
-### Clean Build Artifacts
-Remove generated files:
-```bash
-npm run clean
-```
+**Docker:** `docker compose up --build` runs the full app (API + static) on port 3000.
 
-### Type Checking
-Run TypeScript compiler without emitting:
-```bash
-npm run lint
-```
-
----
-
-## 🌍 Deployment
-
-### Pre-Deployment Checklist
-- [ ] All dependencies installed: `npm install`
-- [ ] Type checking passes: `npm run lint`
-- [ ] Environment variables configured
-- [ ] Production build generated: `npm run build`
-
-### Deploy Configuration
-The project includes **Vercel** configuration for easy one-click deployment:
-- **Build Command:** `npm run build`
-- **Start Command:** `npm start`
-- See `vercel.json` for deployment settings
-
-### Environment Variables for Production
-```
-GEMINI_API_KEY=your_production_api_key
-NODE_ENV=production
-```
-
----
-
-## 📂 Project Structure
+## 🗂️ Project Structure
 
 ```
-hk-cyber-terminal-portfolio/
-├── src/                           # React application
-│   ├── components/                # Reusable UI components
-│   │   ├── BootScreen.tsx        # Initial boot animation
-│   │   └── TerminalDashboard.tsx # Main terminal interface
-│   ├── data/                      # Project and portfolio data
-│   │   └── portfolioData.ts      # Projects, skills, and content
-│   ├── App.tsx                    # Root component
-│   ├── main.tsx                   # Application entry point
-│   ├── index.css                  # Global styles
-│   └── types.ts                   # TypeScript type definitions
-├── api/                           # Backend API routes
-│   └── index.ts                   # Express server setup
-├── db_data/                       # Database and data storage
-│   └── leaderboard.json          # Leaderboard persistent data
-├── public/                        # Static assets
-├── dist/                          # Production build output
-├── package.json                   # Project dependencies
-├── tsconfig.json                  # TypeScript configuration
-├── vite.config.ts                # Vite build configuration
-├── server.ts                      # Node.js server entry
-├── vercel.json                    # Vercel deployment config
-├── .env.local                     # Local environment variables
-└── README.md                      # This file
+├── api/index.ts         # Vercel serverless entry (API only)
+├── server-core.ts       # Shared Express API factory (routes, rate limits, Gemini)
+├── server.ts            # Local/Docker entry (API + static + SPA fallback)
+├── src/
+│   ├── components/      # BootScreen, TerminalDashboard
+│   ├── data/            # portfolioData.ts (projects, puzzles — verified)
+│   └── types.ts
+├── public/              # favicon, og-image, robots.txt, sitemap.xml
+└── tests/               # API tests
 ```
 
----
+## 🔒 Honesty notes
 
-## 🎮 Features in Detail
+- All project data in `src/data/portfolioData.ts` is verified against the live GitHub repos — no fabricated stars, users, or projects.
+- The leaderboard is ephemeral on Vercel (serverless memory) and persists to `db_data/` in local/Docker runs.
+- The contact form only claims success when Resend actually delivered the message; otherwise it shows an honest error with a `mailto:` fallback.
 
-### Terminal Dashboard
-- Real-time system diagnostics
-- Interactive project showcase
-- Skill proficiency matrix
-- Message interface
-- Leaderboard display
+## 📄 License
 
-### Game System
-- Live ranking updates
-- Persistent score tracking
-- Real-time synchronization
-- User achievements
-
-### AI Integration
-- Smart conversation system via Gemini API
-- Context-aware responses
-- Natural language processing
-- Personalized interactions
-
----
-
-## 📊 Performance Metrics
-
-- ⚡ **Build Time:** < 2 seconds
-- 🚀 **Page Load:** < 500ms
-- 📱 **Performance Score:** 95+
-- 🎯 **Lighthouse Score:** 90+
-
----
-
-## 📝 License
-
-This project is open-source and available under the MIT License.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/HAliveKP/hk-cyber-terminal-portfolio/issues).
-
----
-
-## 📧 Contact & Social
-
-For inquiries, collaborations, or feedback:
-- **GitHub:** [@HAliveKP](https://github.com/HAliveKP)
-- **Portfolio:** [HK Cyber Terminal](https://hk-cyber-terminal-portfolio.vercel.app)
-
----
-
-<div align="center">
-  <p><strong>Made with ❤️ by HK</strong></p>
-  <p>Showcasing innovation through code</p>
-</div>
+MIT — see [LICENSE](LICENSE).

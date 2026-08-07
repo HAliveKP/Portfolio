@@ -13,8 +13,8 @@ build/
 # Vite
 vite.config.ts.timestamp-*
 
-# Local Database/Data (To prevent local changes being committed)
-db_data/leaderboard.json
+# Local runtime data (leaderboard + contact submissions - never commit)
+db_data/
 
 # Vercel
 .vercel
@@ -51,3 +51,5 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
+# Build scratch output (was accidentally committed in an earlier version)
+tmp/

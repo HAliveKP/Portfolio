@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-syne: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  * {
+    border-color: #1F242D;
+  }
+
+  body {
+    font-family: var(--font-inter);
+    background-color: #0B0D10;
+    color: #F3F4F6;
+    overflow-x: hidden;
+  }
+}
+
+.font-syne {
+  font-family: var(--font-syne);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-sans {
+  font-family: var(--font-inter);
+}
+
+/* Obsidian Kinetic 1px hairline border helper */
+.hairline-border {
+  border: 1px solid #1F242D;
+}
+
+/* Subtle sub-zero ambient glow (used strictly on micro hover / active states) */
+.subzero-glow {
+  box-shadow: 0 0 32px -8px rgba(0, 229, 255, 0.12);
+}
+
+/* Custom minimal rectilinear scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0D10;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1F242D;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38BDF8;
+}

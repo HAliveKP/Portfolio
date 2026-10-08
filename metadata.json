@@ -1,0 +1,6 @@
+{
+  "name": "Harikrishna Pokhrel — AI Portfolio",
+  "description": "Portfolio of Harikrishna Pokhrel (HKP), AI student & builder in Kathmandu. Building grounded AI systems, RAG, and open tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

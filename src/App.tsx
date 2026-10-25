@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { motion } from 'motion/react';
 import { PORTFOLIO_DATA, Project } from './data/portfolioData';
 import { Navigation } from './components/Navigation';
 import { Hero } from './components/Hero';
@@ -15,6 +16,9 @@ import { BeyondCode } from './components/BeyondCode';
 import { NowSection } from './components/NowSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
+import { GitHubStats } from './components/GitHubStats';
+import { AIChatWidget } from './components/AIChatWidget';
+import { CursorGlow } from './components/CursorGlow';
 
 // Lazy-loaded dialogs & overlays for optimized initial bundle and high Lighthouse score
 const ProjectModal = lazy(() =>
@@ -86,7 +90,12 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#0B0D10] text-[#F3F4F6] selection:bg-[#38BDF8]/20 selection:text-[#38BDF8]">
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="relative min-h-screen bg-[#0B0D10] text-[#F3F4F6] selection:bg-[#38BDF8]/20 selection:text-[#38BDF8]"
+    >
       {/* Background Subtle Architectural Hairline Grid */}
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-40"
@@ -105,6 +114,9 @@ export default function App() {
         }}
         aria-hidden="true"
       />
+
+      {/* Desktop Cursor Ambient Glow Overlay */}
+      <CursorGlow />
 
       {/* Fixed Sticky Nav with Progress Bar, Desktop ⌘K Chip, and Active Highlighter */}
       <Navigation
@@ -127,6 +139,9 @@ export default function App() {
 
         {/* 3. Featured Work with Cursor Cyan Glow and Staggered Reveal */}
         <FeaturedWork onSelectProject={(project) => setSelectedProject(project)} />
+
+        {/* GitHub Live Telemetry */}
+        <GitHubStats />
 
         {/* 4. How I Think */}
         <HowIThink />
@@ -151,6 +166,9 @@ export default function App() {
           onOpenResume={() => setIsResumeOpen(true)}
         />
       </div>
+
+      {/* Floating AI Chat Assistant Widget */}
+      <AIChatWidget />
 
       {/* Modals & Overlays loaded on demand via Suspense */}
       <Suspense fallback={null}>
@@ -188,6 +206,6 @@ export default function App() {
           />
         )}
       </Suspense>
-    </div>
+    </motion.div>
   );
 }

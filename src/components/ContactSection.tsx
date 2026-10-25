@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
+import { ScrollReveal } from './ScrollReveal';
 import {
   Mail,
   Github,
@@ -98,12 +99,13 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section
-      id="contact"
-      className="py-24 sm:py-32 lg:py-40 px-5 sm:px-8 lg:px-12 max-w-[1360px] mx-auto border-t border-[#1F242D]"
-      aria-label="Contact and Communication Channels"
-    >
-      {/* Section Header: Aligned flush across grid */}
+    <ScrollReveal>
+      <section
+        id="contact"
+        className="py-24 sm:py-32 lg:py-40 px-5 sm:px-8 lg:px-12 max-w-[1360px] mx-auto border-t border-[#1F242D]"
+        aria-label="Contact and Communication Channels"
+      >
+        {/* Section Header */}
       <div className="flex flex-col gap-4 mb-16 lg:mb-20">
         <div className="flex items-center gap-3">
           <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#38BDF8]">
@@ -338,6 +340,7 @@ export const ContactSection: React.FC = () => {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </ScrollReveal>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Project } from '../data/portfolioData';
 import { Github, ExternalLink, ArrowRight } from 'lucide-react';
 
@@ -15,20 +15,32 @@ export const FlagshipProjectCard: React.FC<FlagshipProjectCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const shouldReduceMotion = useReducedMotion();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    setMousePos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePos({ x, y });
+
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    if (!isTouch && !shouldReduceMotion) {
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const tiltX = ((y - centerY) / centerY) * -3;
+      const tiltY = ((x - centerX) / centerX) * 3;
+      setTilt({ x: tiltX, y: tiltY });
+    }
   };
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => {
     setIsHovered(false);
     setMousePos(null);
+    setTilt({ x: 0, y: 0 });
   };
 
   return (
@@ -42,26 +54,34 @@ export const FlagshipProjectCard: React.FC<FlagshipProjectCardProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => onSelect && onSelect(project)}
-      className="relative rounded-[8px] bg-[#111418] border border-[#1F242D] hover:border-[#38BDF8]/40 transition-colors duration-200 p-6 sm:p-8 lg:p-10 group overflow-hidden cursor-pointer mb-6"
+      style={{
+        transform:
+          isHovered && !shouldReduceMotion
+            ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(-4px)`
+            : 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)',
+        transition: isHovered
+          ? 'transform 0.1s ease-out, border-color 0.2s ease'
+          : 'transform 0.4s ease-out, border-color 0.2s ease',
+      }}
+      className="relative rounded-[8px] bg-[#111418] border border-[#1F242D] hover:border-[#38BDF8]/60 transition-colors duration-200 p-6 sm:p-8 lg:p-10 group overflow-hidden cursor-pointer mb-6"
     >
-      {/* Cursor-following Sub-Zero Cyan Glow Overlay */}
+      {/* Cursor-following Radial Glow Overlay */}
       <div
         className="pointer-events-none absolute -inset-px rounded-[8px] transition-opacity duration-300 z-10"
         style={{
           opacity: isHovered && mousePos ? 1 : 0,
           background: mousePos
-            ? `radial-gradient(420px circle at ${mousePos.x}px ${mousePos.y}px, rgba(0, 229, 255, 0.08), transparent 75%)`
+            ? `radial-gradient(450px circle at ${mousePos.x}px ${mousePos.y}px, rgba(0, 245, 255, 0.12), transparent 80%)`
             : 'none',
         }}
         aria-hidden="true"
       />
 
-      {/* Horizontal Layout: Text on Left, Stack and Buttons on Right */}
+      {/* Horizontal Layout */}
       <div className="relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Index, Status, Title, Description */}
+        {/* Left Column */}
         <div className="lg:col-span-7 flex flex-col justify-between">
           <div>
-            {/* 1. Header row */}
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#38BDF8]">
                 01
@@ -82,21 +102,18 @@ export const FlagshipProjectCard: React.FC<FlagshipProjectCardProps> = ({
               )}
             </div>
 
-            {/* 2. Title in Syne 22px / 600 */}
             <h3 className="font-syne font-semibold text-[22px] sm:text-2xl text-[#F3F4F6] tracking-tight group-hover:text-white transition-colors leading-snug">
               {project.title}
             </h3>
 
-            {/* 3. Description in Inter 14px, #9CA3AF */}
             <p className="mt-3 font-sans text-[14px] text-[#9CA3AF] leading-relaxed max-w-xl">
               {project.description}
             </p>
           </div>
         </div>
 
-        {/* Right Column: Stack chips and Buttons */}
+        {/* Right Column */}
         <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-6 lg:border-l lg:border-[#1F242D] lg:pl-8">
-          {/* 4. Stack Chips */}
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#4B5563] mb-3">
               TECHNOLOGY STACK
@@ -105,7 +122,7 @@ export const FlagshipProjectCard: React.FC<FlagshipProjectCardProps> = ({
               {project.stack.map((tech) => (
                 <span
                   key={tech}
-                  className="font-mono text-[11px] uppercase tracking-[0.06em] px-2.5 py-1 rounded-[4px] bg-[#0B0D10] border border-[#1F242D] text-[#9CA3AF]"
+                  className="font-mono text-[11px] uppercase tracking-[0.06em] px-2.5 py-1 rounded-[4px] bg-[#0B0D10] border border-[#1F242D] text-[#38BDF8] group-hover:border-[#38BDF8]/30 transition-colors"
                 >
                   {tech}
                 </span>
@@ -113,7 +130,6 @@ export const FlagshipProjectCard: React.FC<FlagshipProjectCardProps> = ({
             </div>
           </div>
 
-          {/* 5. Buttons */}
           <div className="pt-4 border-t border-[#1F242D] flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               {project.liveUrl && (

@@ -18,6 +18,8 @@ export interface Project {
   repoComingSoon?: boolean;
   learned?: string;
   summary?: string;
+  demoUrl?: string;
+  mediaUrl?: string;
 }
 
 export interface TimelineEntry {

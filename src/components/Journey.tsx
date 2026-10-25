@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
+import { ScrollReveal, ScrollRevealItem } from './ScrollReveal';
 import { MapPin, Building2, CheckCircle2 } from 'lucide-react';
 
 export const Journey: React.FC = () => {
@@ -25,13 +26,14 @@ export const Journey: React.FC = () => {
   }, []);
 
   return (
-    <section
-      id="journey"
-      ref={containerRef}
-      className="py-24 sm:py-32 lg:py-40 px-5 sm:px-8 lg:px-12 max-w-[1360px] mx-auto border-t border-[#1F242D]"
-      aria-label="Academic and Technical Journey"
-    >
-      {/* Section Header: Aligned flush across grid */}
+    <ScrollReveal>
+      <section
+        id="journey"
+        ref={containerRef}
+        className="py-24 sm:py-32 lg:py-40 px-5 sm:px-8 lg:px-12 max-w-[1360px] mx-auto border-t border-[#1F242D]"
+        aria-label="Academic and Technical Journey"
+      >
+        {/* Section Header */}
       <div className="flex flex-col gap-4 mb-16 lg:mb-20">
         <div className="flex items-center gap-3">
           <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#38BDF8]">
@@ -65,70 +67,72 @@ export const Journey: React.FC = () => {
         />
 
         {/* Timeline Entries */}
-        <div className="space-y-12 sm:space-y-16">
+        <ScrollReveal staggerChildren={0.08} className="space-y-12 sm:space-y-16">
           {timeline.map((entry, idx) => (
-            <div key={idx} className="relative group">
-              {/* Timeline Marker Node (4px rounded container with tiny status dot) */}
-              <div
-                className="absolute -left-[27px] sm:-left-[35px] md:-left-[39px] lg:-left-[47px] top-1.5 w-7 h-7 rounded-[4px] bg-[#0B0D10] border border-[#1F242D] flex items-center justify-center group-hover:border-[#38BDF8] transition-colors"
-                aria-hidden="true"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#38BDF8] group-hover:bg-[#00E5FF] transition-colors" />
-              </div>
-
-              {/* Timeline Card */}
-              <div className="p-6 sm:p-8 lg:p-9 rounded-[8px] bg-[#111418] border border-[#1F242D] hover:border-[#38BDF8]/40 transition-colors">
-                {/* Year & Institution Row */}
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-4">
-                    <span className="font-syne font-bold text-2xl sm:text-3xl text-[#F3F4F6]">
-                      {entry.year}
-                    </span>
-                    <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#38BDF8] bg-[#0B0D10] px-2.5 py-1 rounded-[4px] border border-[#1F242D]">
-                      {entry.role}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 font-mono text-xs text-[#9CA3AF]">
-                    <MapPin className="w-3.5 h-3.5 text-[#4B5563]" />
-                    <span>{entry.location}</span>
-                  </div>
+            <ScrollRevealItem key={idx}>
+              <div className="relative group">
+                {/* Timeline Marker Node */}
+                <div
+                  className="absolute -left-[27px] sm:-left-[35px] md:-left-[39px] lg:-left-[47px] top-1.5 w-7 h-7 rounded-[4px] bg-[#0B0D10] border border-[#1F242D] flex items-center justify-center group-hover:border-[#38BDF8] transition-colors"
+                  aria-hidden="true"
+                >
+                  <span className="w-2 h-2 rounded-full bg-[#38BDF8] group-hover:bg-[#00E5FF] transition-colors" />
                 </div>
 
-                {/* Institution name */}
-                <div className="flex items-center gap-2 text-xs font-mono text-[#9CA3AF] mb-4">
-                  <Building2 className="w-3.5 h-3.5 text-[#38BDF8]" />
-                  <span>{entry.institution}</span>
-                </div>
-
-                {/* Description */}
-                <p className="font-sans text-xs sm:text-sm text-[#9CA3AF] leading-relaxed mb-5">
-                  {entry.description}
-                </p>
-
-                {/* Highlights */}
-                {entry.highlights && entry.highlights.length > 0 && (
-                  <div className="pt-4 border-t border-[#1F242D] space-y-2">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#4B5563]">
-                      KEY FOCUS & MILESTONES:
+                {/* Timeline Card */}
+                <div className="p-6 sm:p-8 lg:p-9 rounded-[8px] bg-[#111418] border border-[#1F242D] hover:border-[#38BDF8]/40 transition-colors">
+                  {/* Year & Institution Row */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-4">
+                      <span className="font-syne font-bold text-2xl sm:text-3xl text-[#F3F4F6]">
+                        {entry.year}
+                      </span>
+                      <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#38BDF8] bg-[#0B0D10] px-2.5 py-1 rounded-[4px] border border-[#1F242D]">
+                        {entry.role}
+                      </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {entry.highlights.map((h, hIdx) => (
-                        <div
-                          key={hIdx}
-                          className="flex items-start gap-2 text-xs font-sans text-[#F3F4F6]"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00E5FF] shrink-0 mt-0.5" />
-                          <span>{h}</span>
-                        </div>
-                      ))}
+
+                    <div className="flex items-center gap-2 font-mono text-xs text-[#9CA3AF]">
+                      <MapPin className="w-3.5 h-3.5 text-[#4B5563]" />
+                      <span>{entry.location}</span>
                     </div>
                   </div>
-                )}
+
+                  {/* Institution name */}
+                  <div className="flex items-center gap-2 text-xs font-mono text-[#9CA3AF] mb-4">
+                    <Building2 className="w-3.5 h-3.5 text-[#38BDF8]" />
+                    <span>{entry.institution}</span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="font-sans text-xs sm:text-sm text-[#9CA3AF] leading-relaxed mb-5">
+                    {entry.description}
+                  </p>
+
+                  {/* Highlights */}
+                  {entry.highlights && entry.highlights.length > 0 && (
+                    <div className="pt-4 border-t border-[#1F242D] space-y-2">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#4B5563]">
+                        KEY FOCUS & MILESTONES:
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {entry.highlights.map((h, hIdx) => (
+                          <div
+                            key={hIdx}
+                            className="flex items-start gap-2 text-xs font-sans text-[#F3F4F6]"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#00E5FF] shrink-0 mt-0.5" />
+                            <span>{h}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            </ScrollRevealItem>
           ))}
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* Hook into next section */}
@@ -143,7 +147,8 @@ export const Journey: React.FC = () => {
           <span>NEXT → BEYOND CODE</span>
           <span className="group-hover:translate-x-1 transition-transform">→</span>
         </button>
-      </div>
-    </section>
+        </div>
+      </section>
+    </ScrollReveal>
   );
 };

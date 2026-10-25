@@ -2,20 +2,46 @@
 
 @layer base {
   :root {
-    --font-syne: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Color Design Tokens */
+    --bg-base: #0B0D10;
+    --surface-base: #111418;
+    --surface-card: #0E1116;
+    --border-base: #1F242D;
+    --border-hover: rgba(56, 189, 248, 0.4);
+    --text-main: #F3F4F6;
+    --text-muted: #9CA3AF;
+    --accent-cyan: #00F5FF;
+    --accent-cyan-subtle: #38BDF8;
+    --accent-cyan-glow: rgba(0, 245, 255, 0.15);
+    --accent-gradient: linear-gradient(135deg, #00F5FF 0%, #38BDF8 100%);
+
+    /* Typography Tokens */
+    --font-syne: 'Syne', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   * {
-    border-color: #1F242D;
+    border-color: var(--border-base);
   }
 
   body {
     font-family: var(--font-inter);
-    background-color: #0B0D10;
-    color: #F3F4F6;
+    background-color: var(--bg-base);
+    color: var(--text-main);
     overflow-x: hidden;
+  }
+}
+
+/* Accessibility: Support prefers-reduced-motion across all elements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

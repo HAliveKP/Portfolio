@@ -1,14 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
-import { FileText, ChevronRight, CornerDownLeft } from 'lucide-react';
+import { HeroCanvas } from './HeroCanvas';
+import { FileText, ChevronRight, CornerDownLeft, Download, FolderGit2 } from 'lucide-react';
 
 interface HeroProps {
   onOpenResume: () => void;
   onOpenTerminal: () => void;
 }
 
+const ROLES = [
+  'AI Student & Systems Builder',
+  'Grounded RAG Developer',
+  'Open-Source Tools Creator',
+  'Agent Safety Researcher',
+];
+
 export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenTerminal }) => {
   const { profile } = PORTFOLIO_DATA;
+
+  // Rotating Role Typewriter
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [currentRoleText, setCurrentRoleText] = useState('');
+  const [isDeletingRole, setIsDeletingRole] = useState(false);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      setCurrentRoleText(ROLES[0]);
+      return;
+    }
+
+    const currentFullRole = ROLES[roleIndex];
+    const typingSpeed = isDeletingRole ? 35 : 70;
+
+    const timer = setTimeout(() => {
+      if (!isDeletingRole) {
+        setCurrentRoleText(currentFullRole.substring(0, currentRoleText.length + 1));
+        if (currentRoleText === currentFullRole) {
+          setTimeout(() => setIsDeletingRole(true), 1800);
+        }
+      } else {
+        setCurrentRoleText(currentFullRole.substring(0, currentRoleText.length - 1));
+        if (currentRoleText === '') {
+          setIsDeletingRole(false);
+          setRoleIndex((prev) => (prev + 1) % ROLES.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [currentRoleText, isDeletingRole, roleIndex]);
 
   // Terminal typewriter effect
   const [typedLines, setTypedLines] = useState<string[]>([]);
@@ -55,9 +96,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenTerminal }) => {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex flex-col justify-between pt-28 pb-16 px-5 sm:px-8 lg:px-12 max-w-[1360px] mx-auto"
+      className="relative min-h-screen flex flex-col justify-between pt-28 pb-16 px-5 sm:px-8 lg:px-12 max-w-[1360px] mx-auto overflow-hidden"
       aria-label="Introduction & Overview"
     >
+      {/* Background Interactive Particle Network */}
+      <HeroCanvas />
+
       {/* Top micro metadata header */}
       <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-b border-[#1F242D] pb-5">
         <div className="flex items-center gap-3">
@@ -90,8 +134,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenTerminal }) => {
         {/* Left Column: 7 cols */}
         <div className="lg:col-span-7 flex flex-col gap-8">
           <div className="inline-flex items-center gap-3">
-            <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#38BDF8]">
-              STUDENT & BUILDER
+            <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#00F5FF] min-h-[20px] inline-flex items-center">
+              <span>{currentRoleText}</span>
+              <span className="inline-block w-1.5 h-3.5 bg-[#00F5FF] ml-1 animate-pulse" />
             </span>
             <span className="w-8 h-[1px] bg-[#1F242D]" />
             <span className="font-mono text-xs uppercase tracking-[0.06em] text-[#9CA3AF]">
@@ -115,22 +160,31 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenTerminal }) => {
             AI student at Coventry University via Softwarica College in Kathmandu. Building grounded retrieval systems, verifiable agent safety gates, and first-principles toy models to understand modern artificial intelligence from the ground up.
           </p>
 
-          {/* Action buttons: 4px radius, no heavy drop shadows */}
+          {/* Action buttons: 4px radius, clear CTAs */}
           <div className="pt-2 flex flex-wrap items-center gap-4">
             <button
               onClick={handleScrollToWork}
-              className="px-6 py-3.5 rounded-[4px] bg-[#F3F4F6] hover:bg-white text-[#0B0D10] font-syne font-bold text-xs tracking-wider uppercase transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#38BDF8]"
+              className="px-6 py-3.5 rounded-[4px] bg-[#F3F4F6] hover:bg-white text-[#0B0D10] font-syne font-bold text-xs tracking-wider uppercase transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00F5FF]"
             >
-              [ VIEW WORK ]
+              <FolderGit2 className="w-4 h-4 text-[#0B0D10]" />
+              <span>[ VIEW PROJECTS ]</span>
             </button>
 
-            <button
-              onClick={onOpenResume}
-              className="px-6 py-3.5 rounded-[4px] bg-[#111418] hover:bg-[#161B22] border border-[#1F242D] hover:border-[#38BDF8]/60 text-[#F3F4F6] hover:text-[#38BDF8] font-mono text-xs tracking-[0.06em] uppercase transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#38BDF8]"
+            <a
+              href="/resume.pdf"
+              download="Harikrishna_Pokhrel_CV.pdf"
+              onClick={(e) => {
+                // Fallback to resume modal if direct download isn't supported or file missing
+                if (!('download' in document.createElement('a'))) {
+                  e.preventDefault();
+                  onOpenResume();
+                }
+              }}
+              className="px-6 py-3.5 rounded-[4px] bg-[#111418] hover:bg-[#161B22] border border-[#1F242D] hover:border-[#38BDF8]/60 text-[#F3F4F6] hover:text-[#38BDF8] font-mono text-xs tracking-[0.06em] uppercase transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]"
             >
-              <FileText className="w-3.5 h-3.5 text-[#38BDF8]" />
-              <span>[ RESUME ]</span>
-            </button>
+              <Download className="w-3.5 h-3.5 text-[#38BDF8]" />
+              <span>[ DOWNLOAD CV ]</span>
+            </a>
           </div>
 
           {/* Quick anchor tags */}
